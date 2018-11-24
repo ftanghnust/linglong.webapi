@@ -2,6 +2,12 @@
 # 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
 ################################################################################
 
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
 /.vs
 /LingLong.Bll/obj/Debug
 /LingLong.Bll/obj/Release
@@ -10,3 +16,8 @@
 /LingLong.Model/obj/Release
 /LingLong.WebApi/obj
 /LingLong.WebApi/bin
+/LingLong.Bll/bin/Debug
+/LingLong.Common/bin/Debug
+/LingLong.Dal/bin/Debug
+/LingLong.Model/bin/Debug
+/LingLong.Model/obj/Debug
