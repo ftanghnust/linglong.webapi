@@ -1935,21 +1935,37 @@ namespace LingLong.WebApi.Controllers
             #endregion
 
             #region 获取分配比例规则
-            var distributions = t_reward_distributionBLL.GetList();
-            if (distributions.Any())
+            var isFind = false;
+            var storeinfo = t_storeBLL.GetListByWhere($"where IsDeleted=0 and StoreId={reward.StoreId}")
+                 .FirstOrDefault();
+            if (storeinfo != null && storeinfo.PlanId >0)
             {
-                var distributionUse = distributions.Where(o => o.IsDeleted == 0 && o.IsUse == 1).FirstOrDefault();
-                if (distributionUse == null)
+                var distribution = t_reward_distributionBLL.GetListByWhere($"where ID={storeinfo.PlanId} and IsDeleted=0").FirstOrDefault();
+                if (distribution != null)
                 {
-                    var distributionDefault = distributions.Where(o => o.IsDeleted == 0 && o.IsDefault == 1).FirstOrDefault();
-                    if (distributionDefault != null)
-                    {
-                        distributionModel = distributionDefault;
-                    }
+                    isFind = true;
+                    distributionModel = distribution;
                 }
-                else
+            }
+ 
+            if (!isFind)
+            {
+                var distributions = t_reward_distributionBLL.GetList();
+                if (distributions.Any())
                 {
-                    distributionModel = distributionUse;
+                    var distributionUse = distributions.FirstOrDefault(o => o.IsDeleted == 0 && o.IsUse == 1);
+                    if (distributionUse == null)
+                    {
+                        var distributionDefault = distributions.FirstOrDefault(o => o.IsDeleted == 0 && o.IsDefault == 1);
+                        if (distributionDefault != null)
+                        {
+                            distributionModel = distributionDefault;
+                        }
+                    }
+                    else
+                    {
+                        distributionModel = distributionUse;
+                    }
                 }
             }
             #endregion
