@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs
+/LingLong.Bll/obj/Debug
+/LingLong.Bll/obj/Release
+/LingLong.Common/obj
+/LingLong.Dal/obj
+/LingLong.Model/obj/Release
+/LingLong.WebApi/bin
+/LingLong.WebApi/obj

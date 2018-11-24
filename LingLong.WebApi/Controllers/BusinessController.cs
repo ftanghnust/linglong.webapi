@@ -3484,11 +3484,15 @@ namespace LingLong.WebApi.Controllers
             {
                 //获取商户信息
                 var bannerimage = t_bannerimageBLL.GetListByWhere(string.Format("where IsDeleted=0"));
-                return ApiResult.Success(bannerimage.Select(o => new
+ 
+                var tempBannerImageList = bannerimage.Where(o => o.UpOnLineTime <= DateTime.Now && o.DownOnLimeTime > DateTime.Now);
+
+                return ApiResult.Success(tempBannerImageList.Select(o => new
                 {
                     o.BannerTitle,
                     o.ClickTrunOnUrl,
-                    o.ImgUrl
+                    o.ImgUrl,
+                    o.ClickStatus
                 }));
             }
             catch (Exception ex)
