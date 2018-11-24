@@ -1,6 +1,0 @@
-G:\Project\小程序\LingLongNew\LingLong.Model\bin\Release\LingLong.Model.dll
-G:\Project\小程序\LingLongNew\LingLong.Model\bin\Release\LingLong.Model.pdb
-G:\Project\小程序\LingLongNew\LingLong.Model\obj\Release\LingLong.Model.dll
-G:\Project\小程序\LingLongNew\LingLong.Model\obj\Release\LingLong.Model.pdb
-G:\Project\小程序\LingLongNew\LingLong.Model\obj\Release\2.LingLong.Model.csproj.CoreCompileInputs.cache
-G:\Project\小程序\LingLongNew\LingLong.Model\obj\Release\2.LingLong.Model.csprojResolveAssemblyReference.cache
