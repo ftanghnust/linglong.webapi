@@ -1,5 +1,0 @@
-G:\Project\小程序\LingLongNew\LingLong.Model\bin\Debug\LingLong.Model.dll
-G:\Project\小程序\LingLongNew\LingLong.Model\bin\Debug\LingLong.Model.pdb
-G:\Project\小程序\LingLongNew\LingLong.Model\obj\Debug\LingLong.Model.dll
-G:\Project\小程序\LingLongNew\LingLong.Model\obj\Debug\LingLong.Model.pdb
-G:\Project\小程序\LingLongNew\LingLong.Model\obj\Debug\2.LingLong.Model.csproj.CoreCompileInputs.cache

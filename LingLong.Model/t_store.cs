@@ -71,7 +71,12 @@ namespace LingLong.Model
         /// 门店评分
         /// </summary>
         public float Score { get; set; }
-    
+
+        /// <summary>
+        /// 分配方案Id 表t_reward_distribution Id
+        /// </summary>
+        public int PlanId { get; set; }
+
         /// <summary>
         /// 删除标志（0：未删除 1：已删除）
         /// </summary>
