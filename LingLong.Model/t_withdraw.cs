@@ -31,7 +31,12 @@ namespace LingLong.Model
         /// 用户微信唯一标识
         /// </summary>
         public string OpenId { get; set; }
-    
+
+        /// <summary>
+        /// 提现订单号
+        /// </summary>
+        public string BillNo { get; set; }
+
         /// <summary>
         /// 提现名称
         /// </summary>
@@ -46,7 +51,12 @@ namespace LingLong.Model
         /// 提取时间
         /// </summary>
         public DateTime WithdrawTime { get; set; }
-    
+
+        /// <summary>
+        /// 状态（0：失败 1：成功）
+        /// </summary>
+        public int State { get; set; }
+
         /// <summary>
         /// 删除标志（0：未删除 1：已删除）
         /// </summary>
