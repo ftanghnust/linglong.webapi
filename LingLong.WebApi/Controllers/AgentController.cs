@@ -716,6 +716,10 @@ namespace LingLong.WebApi.Controllers
                 using (var connection = CommonBll.GetOpenMySqlConnection())
                 {
                     IDbTransaction transaction = connection.BeginTransaction();
+                    var state = 0;
+                    var billno = "";
+                    //调用企业付款给个人接口
+
                     //3.写入提现记录
                     var InsertWithdraw = t_withdrawBLL.InsertByTrans(new Model.t_withdraw
                     {
@@ -725,6 +729,8 @@ namespace LingLong.WebApi.Controllers
                         WithdrawTime = DateTime.Now,
                         CreationTime = DateTime.Now,
                         IsDeleted = 0,
+                        State = state,
+                        BillNo = billno
                     }, connection, transaction);
 
                     if (InsertWithdraw < 0)
