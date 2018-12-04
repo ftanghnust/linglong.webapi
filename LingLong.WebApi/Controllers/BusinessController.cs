@@ -2859,10 +2859,13 @@ namespace LingLong.WebApi.Controllers
                     var UnionCustomerList = SendCustomerList.Union(AcceptCustomerList, new MessageItemEquality());  //消息人员列表
                     foreach (var item in UnionCustomerList)
                     {
-                        var StoreBusiness = t_store_customer_businessBLL.GetListByWhere(string.Format("where StoreId={0} and BusinessId={1} and CustomerId={2}", item.StoreId, BusinessId, item.UserId)).FirstOrDefault();
-                        if (StoreBusiness == null)  //已删除的客户，不出现消息列表中
+                        if (item.UserId != 1)  //系统平台发送的消息
                         {
-                            continue;
+                            var StoreBusiness = t_store_customer_businessBLL.GetListByWhere(string.Format("where StoreId={0} and BusinessId={1} and CustomerId={2}", item.StoreId, BusinessId, item.UserId)).FirstOrDefault();
+                            if (StoreBusiness == null)  //已删除的客户，不出现消息列表中
+                            {
+                                continue;
+                            }
                         }
                         var MessageItemList = MessageList.Where(o => (o.SendOpenId == item.UserOpenId || o.AcceptOpenId == item.UserOpenId)
                                                                 && o.StoreId == item.StoreId).OrderByDescending(o => o.SendTime);
@@ -3484,7 +3487,7 @@ namespace LingLong.WebApi.Controllers
             {
                 //获取商户信息
                 var bannerimage = t_bannerimageBLL.GetListByWhere(string.Format("where IsDeleted=0"));
- 
+
                 var tempBannerImageList = bannerimage.Where(o => o.UpOnLineTime <= DateTime.Now && o.DownOnLimeTime > DateTime.Now);
 
                 return ApiResult.Success(tempBannerImageList.Select(o => new
