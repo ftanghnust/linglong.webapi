@@ -1936,8 +1936,9 @@ namespace LingLong.WebApi.Controllers
 
             #region 获取分配比例规则
             var isFind = false;
-            var storeinfo = t_storeBLL.GetListByWhere($"where IsDeleted=0 and StoreId={reward.StoreId}")
+            var storeinfo = t_storeBLL.GetListByWhere($"where IsDeleted=0 and Id={reward.StoreId}")
                  .FirstOrDefault();
+            LogHelper.WriteLog(string.Format("{0}回调处理开始,门店记录：{1}", wx_transaction_id, JsonHelper.SerializeObject(storeinfo)));
             if (storeinfo != null && storeinfo.PlanId >0)
             {
                 var distribution = t_reward_distributionBLL.GetListByWhere($"where ID={storeinfo.PlanId} and IsDeleted=0").FirstOrDefault();
