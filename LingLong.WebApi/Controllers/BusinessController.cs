@@ -1374,9 +1374,10 @@ namespace LingLong.WebApi.Controllers
         /// <param name="BusinessId">服务人员Id</param>
         /// <param name="RoleId">角色Id</param>
         /// <param name="StatisticalType">统计类型：0：总榜 1：周榜 2：月榜</param>
+        /// <param name="RankType">等级排序类型：1：按好评 2：按一般 3：按差评；0：不需要按等级排序（服务人员传调用传0）</param>
         /// <returns></returns>
         [HttpGet, Route("Business/GetServiceEvaluation")]
-        public HttpResponseMessage GetServiceEvaluation(int StoreId, int BusinessId, int RoleId, int StatisticalType)
+        public HttpResponseMessage GetServiceEvaluation(int StoreId, int BusinessId, int RoleId, int StatisticalType, int RankType)
         {
             try
             {
@@ -1406,6 +1407,18 @@ namespace LingLong.WebApi.Controllers
                 if (!(new List<int> { 0, 1, 2 }).Contains(StatisticalType))
                 {
                     return ApiResult.Error("参数StatisticalType错误");
+                }
+                if (!(new List<int> { 1, 2, 3, 0 }).Contains(RankType))
+                {
+                    return ApiResult.Error("参数RankType错误");
+                }
+                if (RoleId == 3 && RankType != 0)
+                {
+                    return ApiResult.Error("参数RankType错误");
+                }
+                if (RoleId != 3 && RankType == 0)
+                {
+                    return ApiResult.Error("参数RankType错误");
                 }
                 #endregion
 
@@ -1443,51 +1456,86 @@ namespace LingLong.WebApi.Controllers
                 {
                     //服务员评价得分 1：满意 2：一般 3：不满意
                     //总计数为0不显示，只显示榜单前十名
-                    var GroupServiceEvaluation = ServiceEvaluation.Where(o => o.Score == 1).GroupBy(o => o.BusinessId).
-                        Select(o => new
+                    if (RoleId == 3)
+                    {
+                        var GroupServiceEvaluation = ServiceEvaluation.Where(o => o.Score == 1).GroupBy(o => o.BusinessId).Select(o => new
                         {
                             BusinessId = o.Key,
                             Count = o.Count()
                         }).OrderByDescending(o => o.Count).Take(10);
 
-                    if (GroupServiceEvaluation.Any())
-                    {
-                        //获取服务人员信息
-                        var businessList = t_businessBLL.GetListByWhere(string.Format("where ID IN ({0}) and IsDeleted=0 ",
-                        string.Join(",", GroupServiceEvaluation.Select(o => o.BusinessId))));
+                        var ServiceEvaluationTemp = ServiceEvaluation.Where(o => o.BusinessId == BusinessId);
 
-                        var leftJoin = from s in GroupServiceEvaluation
-                                       join b in businessList on s.BusinessId equals b.ID into temp
-                                       from t in temp.DefaultIfEmpty()
-                                       select new
-                                       {
-                                           s.BusinessId,
-                                           s.Count,
-                                           Nickname = (t == null ? "" : string.IsNullOrEmpty(t.Nickname) ? t.TrueName : t.Nickname),
-                                           AvatarUrl = (t == null ? "" : t.AvatarUrl),
-                                       };
-                        if (RoleId == 3) //对于服务人员还需要显示个人服务评价统计信息
+                        if (GroupServiceEvaluation.Any())
                         {
-                            var ServiceEvaluationTemp = ServiceEvaluation.Where(o => o.BusinessId == BusinessId);
+                            //获取服务人员信息
+                            var businessList = t_businessBLL.GetListByWhere(string.Format("where ID IN ({0}) and IsDeleted=0 ", string.Join(",", GroupServiceEvaluation.Select(o => o.BusinessId))));
+                            var leftJoin = from s in GroupServiceEvaluation
+                                           join b in businessList on s.BusinessId equals b.ID into temp
+                                           from t in temp.DefaultIfEmpty()
+                                           select new
+                                           {
+                                               s.BusinessId,
+                                               s.Count,
+                                               Nickname = (t == null ? "" :
+                                                   string.IsNullOrEmpty(t.Nickname) ? t.TrueName : t.Nickname),
+                                               AvatarUrl = (t == null ? "" : t.AvatarUrl),
+                                           };
 
                             return ApiResult.Success(new
                             {
                                 Nickname = string.IsNullOrEmpty(business.Nickname) ? business.TrueName : business.Nickname,
                                 business.AvatarUrl,
-                                SelfSatisfy = ServiceEvaluationTemp.Where(o => o.Score == 1).Count(),  //满意
-                                SelfCommon = ServiceEvaluationTemp.Where(o => o.Score == 2).Count(),   //一般
-                                SelfNoSatisfy = ServiceEvaluationTemp.Where(o => o.Score == 3).Count(), //不满意
+                                SelfSatisfy = ServiceEvaluationTemp.Count(o => o.Score == 1), //满意
+                                SelfCommon = ServiceEvaluationTemp.Count(o => o.Score == 2), //一般
+                                SelfNoSatisfy = ServiceEvaluationTemp.Count(o => o.Score == 3), //不满意
                                 RankList = leftJoin
                             });
                         }
                         else
                         {
-                            return ApiResult.Success(leftJoin);
+                            return ApiResult.Success(new
+                            {
+                                Nickname = string.IsNullOrEmpty(business.Nickname) ? business.TrueName : business.Nickname,
+                                business.AvatarUrl,
+                                SelfSatisfy = ServiceEvaluationTemp.Count(o => o.Score == 1), //满意
+                                SelfCommon = ServiceEvaluationTemp.Count(o => o.Score == 2), //一般
+                                SelfNoSatisfy = ServiceEvaluationTemp.Count(o => o.Score == 3), //不满意
+                                RankList = GroupServiceEvaluation
+                            });
                         }
                     }
                     else
                     {
-                        return ApiResult.Success(GroupServiceEvaluation);
+                        var GroupServiceEvaluation = ServiceEvaluation.Where(o => o.Score == RankType).GroupBy(o => o.BusinessId).Select(o => new
+                        {
+                            BusinessId = o.Key,
+                            Count = o.Count()
+                        }).OrderByDescending(o => o.Count).Take(10);
+
+                        if (GroupServiceEvaluation.Any())
+                        {
+                            //获取服务人员信息
+                            var businessList = t_businessBLL.GetListByWhere(string.Format("where ID IN ({0}) and IsDeleted=0 ",
+                            string.Join(",", GroupServiceEvaluation.Select(o => o.BusinessId))));
+
+                            var leftJoin = from s in GroupServiceEvaluation
+                                           join b in businessList on s.BusinessId equals b.ID into temp
+                                           from t in temp.DefaultIfEmpty()
+                                           select new
+                                           {
+                                               s.BusinessId,
+                                               s.Count,
+                                               Nickname = (t == null ? "" : string.IsNullOrEmpty(t.Nickname) ? t.TrueName : t.Nickname),
+                                               AvatarUrl = (t == null ? "" : t.AvatarUrl),
+                                           };
+
+                            return ApiResult.Success(leftJoin);
+                        }
+                        else
+                        {
+                            return ApiResult.Success(GroupServiceEvaluation);
+                        }
                     }
                 }
                 else
