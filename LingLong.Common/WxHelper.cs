@@ -368,9 +368,9 @@ namespace LingLong.Common
         /// 企业付款给个人
         /// </summary>       
         /// <returns></returns>
-        public static string EnterprisePay(string Bill_No, string toOpenid, decimal Charge_Amt, string userName, string title)
+        public static string EnterprisePay(string Bill_No, string toOpenid, decimal Charge_Amt, string title)
         {
-            string APPID = ConfigurationManager.AppSettings["appid"];
+            string APPID = ConfigurationManager.AppSettings["BusinessAppID"];
             string PARTNER = ConfigurationManager.AppSettings["mch_id"];
             string IPAddress = ConfigurationManager.AppSettings["ip"];
 
@@ -449,7 +449,7 @@ namespace LingLong.Common
             //=======【证书路径设置】===================================== 
             /* 证书路径,注意应该填写绝对路径（仅退款、撤销订单时需要）
             */
-            string SSLCERT_PATH = "weixin\\businesscard\\cert\\apiclient_cert.p12";
+            string SSLCERT_PATH = ConfigurationManager.AppSettings["SSLCERT_PATH"]; //"E:\\cert\\apiclient_cert.p12";
             string SSLCERT_PASSWORD = ConfigurationManager.AppSettings["mch_id"]; 
 
             System.GC.Collect();//垃圾回收，回收没有正常关闭的http连接
@@ -492,15 +492,15 @@ namespace LingLong.Common
                 //是否使用证书
                 if (isUseCert)
                 {
-                    string path = HttpContext.Current.Request.PhysicalApplicationPath;
+                    //string path = HttpContext.Current.Request.PhysicalApplicationPath;
                     //X509Certificate2 cert = new X509Certificate2(path + SSLCERT_PATH, SSLCERT_PASSWORD);
 
                     //将上面的改成
-                    X509Certificate2 cert = new X509Certificate2(path + SSLCERT_PATH, SSLCERT_PASSWORD, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.MachineKeySet);//线上发布需要添加
+                    X509Certificate2 cert = new X509Certificate2( SSLCERT_PATH, SSLCERT_PASSWORD, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.MachineKeySet);//线上发布需要添加
 
                     request.ClientCertificates.Add(cert);
 
-                    LogHelper.WriteLog("证书路径：" + (path + SSLCERT_PATH));
+                    LogHelper.WriteLog("证书路径：" + ( SSLCERT_PATH));
 
                     //Vincent._Log.SaveMessage("WxPayApi:PostXml used cert");
                 }

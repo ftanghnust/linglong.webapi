@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Xml;
 
 namespace LingLong.WebApi.Controllers
 {
@@ -2726,46 +2727,60 @@ namespace LingLong.WebApi.Controllers
                 using (var connection = CommonBll.GetOpenMySqlConnection())
                 {
                     IDbTransaction transaction = connection.BeginTransaction();
-                    var state = 0;
-                    var billno = "";
+ 
                     //调用企业付款给个人接口
+                    var payresult = WxHelper.EnterprisePay(business.ID.ToString(), RequestDto.OpenId, RequestDto.WithdrawMoney, "打赏提现");
 
+                    LogHelper.WriteLog(string.Format("企业付款给个人接口返回接口：{0}", payresult));
 
-                    //3.写入提现记录
-                    var InsertWithdraw = t_withdrawBLL.InsertByTrans(new Model.t_withdraw
+                    DataSet ds = new DataSet();
+                    StringReader stram = new StringReader(payresult);
+                    XmlTextReader reader = new XmlTextReader(stram);
+                    ds.ReadXml(reader);
+                    string result_code = ds.Tables[0].Rows[0]["result_code"].ToString();
+                    if (result_code.ToUpper() == "SUCCESS")
                     {
-                        StoreId = RequestDto.StoreId,
-                        WithdrawName = "打赏提现",
-                        Withdraw = RequestDto.WithdrawMoney,
-                        OpenId = RequestDto.OpenId,
-                        WithdrawTime = DateTime.Now,
-                        CreationTime = DateTime.Now,
-                        IsDeleted = 0,
-                        State = state,
-                        BillNo = billno
-                    }, connection, transaction);
+                        //3.写入提现记录
+                        var InsertWithdraw = t_withdrawBLL.InsertByTrans(new Model.t_withdraw
+                        {
+                            StoreId = RequestDto.StoreId,
+                            WithdrawName = "打赏提现",
+                            Withdraw = RequestDto.WithdrawMoney,
+                            OpenId = RequestDto.OpenId,
+                            WithdrawTime = DateTime.Now,
+                            CreationTime = DateTime.Now,
+                            IsDeleted = 0,
+                            State = 1,
+                            BillNo = ds.Tables[0].Rows[0]["partner_trade_no"].ToString()
+                        }, connection, transaction);
 
-                    if (InsertWithdraw < 0)
-                    {
-                        transaction.Rollback();
-                        return ApiResult.Error("写入提现记录失败");
+                        if (InsertWithdraw < 0)
+                        {
+                            transaction.Rollback();
+                            return ApiResult.Error("写入提现记录失败");
+                        }
+
+                        //4.更新钱包余额
+                        wallet.Balance = wallet.Balance - RequestDto.WithdrawMoney;
+                        wallet.Withdraw = wallet.Withdraw + RequestDto.WithdrawMoney;
+                        wallet.LastModificationTime = DateTime.Now;
+                        var UpdateWallet = t_walletBLL.UpdateByTrans(wallet, connection, transaction);
+                        if (UpdateWallet < 0)
+                        {
+                            transaction.Rollback();
+                            return ApiResult.Error("更新钱包信息失败");
+                        }
+
+                        transaction.Commit();
+
+                        //5.返回结果
+                        return ApiResult.Success(true);
                     }
-
-                    //4.更新钱包余额
-                    wallet.Balance = wallet.Balance - RequestDto.WithdrawMoney;
-                    wallet.Withdraw = wallet.Withdraw + RequestDto.WithdrawMoney;
-                    wallet.LastModificationTime = DateTime.Now;
-                    var UpdateWallet = t_walletBLL.UpdateByTrans(wallet, connection, transaction);
-                    if (UpdateWallet < 0)
+                    else
                     {
-                        transaction.Rollback();
-                        return ApiResult.Error("更新钱包信息失败");
+                        return ApiResult.Error(ds.Tables[0].Rows[0]["err_code_des"].ToString());
                     }
-
-                    transaction.Commit();
                 }
-                //5.返回结果
-                return ApiResult.Success(true);
             }
             catch (Exception ex)
             {
