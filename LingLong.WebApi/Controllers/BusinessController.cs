@@ -1642,7 +1642,7 @@ namespace LingLong.WebApi.Controllers
                                        {
                                            s.BusinessId,
                                            s.Money,
-                                           Nickname = (t == null ? "" : string.IsNullOrEmpty(t.Nickname) ? t.TrueName : t.Nickname),
+                                           Nickname = (t == null ? "" : string.IsNullOrEmpty(t.TrueName) ? t.Nickname : t.TrueName),
                                            AvatarUrl = (t == null ? "" : t.AvatarUrl),
                                        };
                         if (RoleId == 3)
@@ -1651,7 +1651,7 @@ namespace LingLong.WebApi.Controllers
 
                             return ApiResult.Success(new
                             {
-                                Nickname = string.IsNullOrEmpty(business.Nickname) ? business.TrueName : business.Nickname,
+                                Nickname = string.IsNullOrEmpty(business.TrueName) ? business.Nickname : business.TrueName,
                                 business.AvatarUrl,
                                 SelfRewardCount = StoreRewardTemp.Count(),
                                 SelfRewardMoney = StoreRewardTemp.Sum(o => o.Money),

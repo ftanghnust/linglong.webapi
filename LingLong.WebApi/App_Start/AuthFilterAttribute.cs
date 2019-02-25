@@ -22,11 +22,11 @@ namespace LingLong.WebApi.App_Start
             //var verifyResult = actionContext.Request.Headers.Authorization != null &&  //要求请求中需要带有Authorization头
             //                   actionContext.Request.Headers.Authorization.Parameter == "123456"; //并且Authorization参数为123456则验证通过
 
-            DateTime EndTime = Convert.ToDateTime("2019-01-15");
-            if (DateTime.Now > EndTime)
-            {
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized, new HttpError(""));
-            }
+            //DateTime EndTime = Convert.ToDateTime("2019-02-28");
+            //if (DateTime.Now > EndTime)
+            //{
+            //    actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized, new HttpError(""));
+            //}
         }
     }
 }

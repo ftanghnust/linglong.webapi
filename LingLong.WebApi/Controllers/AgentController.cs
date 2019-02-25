@@ -475,6 +475,7 @@ namespace LingLong.WebApi.Controllers
                 DateTime? EndTime = null;
                 DateTime NowTime = DateTime.Now;
                 int DayOfWeek = (int)NowTime.DayOfWeek;
+                DayOfWeek = (DayOfWeek == 0 ? 7 : DayOfWeek);
                 int Day = (int)NowTime.Day;
                 switch (StatisticalType)
                 {
@@ -553,6 +554,7 @@ namespace LingLong.WebApi.Controllers
                 DateTime? EndTime = null;
                 DateTime NowTime = DateTime.Now;
                 int DayOfWeek = (int)NowTime.DayOfWeek;
+                DayOfWeek = (DayOfWeek == 0 ? 7 : DayOfWeek);
                 int Day = (int)NowTime.Day;
                 switch (StatisticalType)
                 {
